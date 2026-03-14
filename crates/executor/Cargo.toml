@@ -1,0 +1,16 @@
+[package]
+name = "executor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+signer = { path = "../signer" }
+solana-sdk = "1.18"
+solana-client = "1.18"
+tokio = { version = "1.35", features = ["full"] }
+relay = { path = "../relay" }
+anyhow = "1.0"
+tracing = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

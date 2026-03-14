@@ -1,0 +1,10 @@
+[package]
+name = "model"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# onnxruntime = "0.0.14" # Commented out as it might require external libs
+anyhow = "1.0"
+tracing = "0.1"
+common = { path = "../common" }

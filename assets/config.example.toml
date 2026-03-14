@@ -1,0 +1,18 @@
+# Example Configuration
+
+[network]
+rpc_url = "https://api.mainnet-beta.solana.com"
+ws_url = "wss://api.mainnet-beta.solana.com"
+
+[trading]
+program_id = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+max_position_size = 0.5 # SOL
+min_confidence = 0.85
+
+[strategy]
+type = "simple"
+volume_threshold = 5000000 # lamports
+
+[logging]
+level = "info"
+format = "pretty"

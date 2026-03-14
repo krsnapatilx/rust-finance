@@ -1,0 +1,50 @@
+use axum::{
+    extract::ws::{WebSocket, WebSocketUpgrade, Message}, 
+    response::{Html, Response}, 
+    routing::get, 
+    Router
+};
+use std::net::SocketAddr;
+use tokio::sync::broadcast;
+use futures::sink::SinkExt;
+
+pub async fn serve(tx: broadcast::Sender<String>) {
+    let app = Router::new()
+        .route("/", get(index))
+        .route("/ws", get(move |ws: WebSocketUpgrade| handle_ws(ws, tx.clone())));
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    tracing::info!("web-dashboard listening on {}", addr);
+    axum::serve(listener, app).await.unwrap();
+}
+
+async fn index() -> Html<&'static str> {
+    Html(include_str!("static/index.html"))
+}
+
+async fn handle_ws(ws: WebSocketUpgrade, tx: broadcast::Sender<String>) -> Response {
+    ws.on_upgrade(move |mut socket: WebSocket| async move {
+        let mut rx = tx.subscribe();
+        loop {
+            tokio::select! {
+                msg = socket.recv() => {
+                    if msg.is_none() { break; }
+                }
+                evt = rx.recv() => {
+                    match evt {
+                        Ok(payload) => {
+                            if socket.send(Message::Text(payload)).await.is_err() {
+                                break;
+                            }
+                        }
+                        Err(broadcast::error::RecvError::Lagged(_)) => {
+                            continue;
+                        }
+                        Err(_) => break,
+                    }
+                }
+            }
+        }
+    })
+}
