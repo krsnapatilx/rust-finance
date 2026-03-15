@@ -15,6 +15,7 @@ use tokio::sync::mpsc;
 use tracing::{info, error, warn};
 
 mod kill_switch;
+pub mod ai_pipeline;
 use kill_switch::KillSwitch;
 
 #[tokio::main]

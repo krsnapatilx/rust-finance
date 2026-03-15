@@ -8,6 +8,13 @@ pub struct MessageRequest {
     pub messages: Vec<Message>,
     pub max_tokens: u32,
     pub system: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_config: Option<OutputConfig>,
+}
+
+#[derive(Serialize, Clone)]
+pub struct OutputConfig {
+    pub format: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

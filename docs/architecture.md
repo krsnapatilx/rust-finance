@@ -11,7 +11,7 @@ RustForge Terminal is a low-latency, modular trading architecture built heavily 
 ## Component Flow
 - **Ingestion:** Connects to Finnhub, normalizes ticks, transmits over MPSC to EventBus.
 - **Relay/Bus:** A localized TCP server broadcasting `BotEvent`s to the terminal UI (Ratatui) without coupling them to the Daemon process.
-- **Strategy & AI:** ML models act on the normalized stream. PPO Agents and Statistical Arbitrage evaluate.
+- **Strategy & AI (Opus 4.6 / Sonnet 4.6 Routing):** ML models act on the normalized stream. PPO Agents and Statistical Arbitrage evaluate. The daemon implements a strictly gated probability router in `ai_pipeline.rs` ensuring high-stakes calls (earnings, FOMC) utilize **Claude Opus 4.6** and routine signals default to faster Sonnet queries.
 - **Risk Layer:** Daily Loss limits, Drawdown monitors, and Kill Switches filter actions.
 - **Persistence:** Appended sequentially to a SQLite `trades` ledger.
 

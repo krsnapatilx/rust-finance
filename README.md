@@ -127,9 +127,10 @@ cargo run -p tui --release
 * **Quantitative Pricing Analytics (`pricing`):** Bloomberg-grade option pricing frameworks including **Black-Scholes-Merton**, **Hagan SABR Volatility**, **Heston Stochastic Vol**, and **Hull-White Trinomial** trees. 
 * **Fixed Income Modeling:** Implemented the exact BVAL 3-step algorithms and corporate WACC default computations native to institutional desks.
 * **Advanced Risk Engines (`risk`):** Automated VaR checks, dynamic Drawdown halts, and **GARCH(1,1) Volatility forecasting**.
-* **Dual AI Decision Engines:**
-    * **Dexter Analyst AI:** Reads fundamental data and market news simultaneously using Anthropic APIs to identify macro catalysts.
-    * **MiroFish Swarm AI:** Simulates 5,000 algorithmic agent iterations to predict micro-price movements.
+* **Dual AI Decision Engines (Anthropic Claude Opus 4.6 Powered):**
+    * **Dexter Analyst AI:** Reads fundamental data and market news via **Opus 4.6**. Opus 4.6 outperforms GPT-5.2 by 144 Elo points on GDPval-AA evaluations (economically valuable finance constraints) making it the top financial analyst model globally.
+    * **MiroFish Swarm AI:** Simulates 5,000 algorithmic agent iterations and runs via Agent Teams.
+    * **Compaction API Integration:** Infinite deep context length allows the daemon to retain rolling multi-week token histories purely on server-side summarizations, reducing overhead significantly.
     * **NeurIPS 2025 Interval Regression:** Advanced multi-layer perceptron training natively on Bid/Ask spreads without lit prints.
 * **Terminal UI (TUI):** A professional-grade, multi-column dashboard rendered directly in your terminal using Ratatui. Features high-res Braille price charts, live options chains (`options_chain.rs`), and live portfolio P&L tracking.
 * **Institutional Execution Protocol:** Active SEBI pre-trade limits, bracket routing, and native FIX 4.4 serialization.
