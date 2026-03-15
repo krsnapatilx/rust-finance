@@ -25,9 +25,10 @@ pub struct ExecutorService {
 }
 
 impl ExecutorService {
-    pub fn new(selector: Arc<relay::NodeSelector>, signer: Option<LocalSigner>) -> Self {
-        let rpc_url = "https://api.mainnet-beta.solana.com".to_string();
-        Self { 
+    pub async fn new(selector: Arc<relay::NodeSelector>, signer: Option<LocalSigner>) -> Self {
+        let best_node = selector.get_best().await;
+        let rpc_url = best_node.rpc_url.clone();
+        Self {
             selector,
             signer: signer.map(Arc::new),
             rpc_client: Arc::new(RpcClient::new(rpc_url)),
