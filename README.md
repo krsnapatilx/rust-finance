@@ -140,20 +140,20 @@ RustForge natively implements the top mathematical formulations utilized by elit
 
 ### 1. Heston Stochastic Volatility Model
 Used extensively to capture the volatility smile and skew that classical Black-Scholes fails to price correctly.
-*   **Asset Price Dynamics:** $dS = \mu \cdot S \cdot dt + \sqrt{v} \cdot S \cdot dW_1$
-*   **Variance Dynamics:** $dv = \kappa (\theta - v) dt + \sigma_v \sqrt{v} dW_2$
-*   **Brownian Correlation:** $corr(dW_1, dW_2) = \rho \cdot dt$
+*   **Asset Price Dynamics:** `dS = μ·S·dt + √v·S·dW₁`
+*   **Variance Dynamics:** `dv = κ·(θ - v)·dt + σ_v·√v·dW₂`
+*   **Brownian Correlation:** `corr(dW₁, dW₂) = ρ·dt`
 
 ### 2. GARCH(1,1) Volatility Forecasting
 Used by risk management systems to dynamically forecast volatility using Maximum Likelihood Estimation, prioritizing recent market shocks.
-*   **Conditional Variance Formulation:** $\sigma_t^2 = \omega + \alpha \cdot \epsilon_{t-1}^2 + \beta \cdot \sigma_{t-1}^2$
+*   **Conditional Variance Formulation:** `σ²_t = ω + α·ε²_{t-1} + β·σ²_{t-1}`
 
 ### 3. Bloomberg NeurIPS 2025 Interval Regression
 A specialized machine learning Neural Network loss function used to price illiquid corporate bonds purely based on bounded Bid/Ask spreads, bypassing the requirement for noisy "mid-price" assumptions.
 *   **Interval Loss Gradient:**
-    *   `If Prediction < Bid:` $\text{Loss} = (\text{Bid} - \text{Prediction})^2$
-    *   `If Prediction > Ask:` $\text{Loss} = (\text{Prediction} - \text{Ask})^2$
-    *   `Else (Inside Spread):` $\text{Loss} = 0$
+    *   `If Prediction < Bid:` `Loss = (Bid - Prediction)²`
+    *   `If Prediction > Ask:` `Loss = (Prediction - Ask)²`
+    *   `Else (Inside Spread):` `Loss = 0`
 
 ### 4. Hull-White Trinomial Rate Trees & BVAL
 Proprietary implementation of the **Hull-White One-Factor** model wrapped in a Trinomial Tree algorithm for American interest-rate derivatives, mapping directly against the Bloomberg **BVAL 3-Step** structural bond pricing cascade.

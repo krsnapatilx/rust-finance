@@ -22,9 +22,9 @@ RustForge natively integrates Bloomberg-tier financial engineering formulas dire
 The system incorporates classical BSM with a closed-form Newton-Raphson IV solver, alongside the **Heston Stochastic Volatility Model** which uses the Gil-Pelaez characteristic function inversion to capture the volatility smile/skew that BSM fails to model:
 
 **Heston Dynamics:**
-- $dS = \mu \cdot S \cdot dt + \sqrt{v} \cdot S \cdot dW_1$
-- $dv = \kappa (\theta - v) dt + \sigma_v \sqrt{v} dW_2$
-- $corr(dW_1, dW_2) = \rho \cdot dt$
+- `dS = μ·S·dt + √v·S·dW₁`
+- `dv = κ·(θ - v)·dt + σ_v·√v·dW₂`
+- `corr(dW₁, dW₂) = ρ·dt`
 
 ### 2. Fixed Income (BVAL & Hull-White)
 To capture interest rate term structures and price bond derivatives, the system implements the **Hull-White One-Factor** model wrapped around a Trinomial Tree algorithm to accurately compute American-style early exercise premiums. 
@@ -38,13 +38,13 @@ Additionally, the system replicates the **Bloomberg BVAL 3-Step Process** for bo
 Rather than solely relying on historical standard deviations (which lag market shocks), the internal Risk Manager utilizes a rolling **GARCH(1,1)** Maximum Likelihood Estimation engine to forecast variance.
 
 **GARCH(1,1) Conditional Variance formulation:**
-$\sigma_t^2 = \omega + \alpha \cdot \epsilon_{t-1}^2 + \beta \cdot \sigma_{t-1}^2$
-- *Where $\alpha + \beta < 1$ guarantees mean-reversion stationarity.*
+`σ²_t = ω + α·ε²_{t-1} + β·σ²_{t-1}`
+- *Where α + β < 1 guarantees mean-reversion stationarity.*
 
 ### 4. Machine Learning (NeurIPS Interval Regression)
 Classical ML target-mapping breaks down when lit prints are sparse (like in corporate bonds). We incorporated Bloomberg's NeurIPS 2025 finding on **Interval Regression** (`crates/ml/interval_regression.rs`). This custom Neural Network loss function trains *only* on Bid/Ask bounds rather than forcing a naive mid-price assumption.
 
 **Modified Interval Loss Gradient:**
-- `If Prediction < Bid`: $\text{Loss} = (\text{Bid} - \text{Prediction})^2$
-- `If Prediction > Ask`: $\text{Loss} = (\text{Prediction} - \text{Ask})^2$
-- `Else (Inside Spread)`: $\text{Loss} = 0$
+- `If Prediction < Bid`: `Loss = (Bid - Prediction)²`
+- `If Prediction > Ask`: `Loss = (Prediction - Ask)²`
+- `Else (Inside Spread)`: `Loss = 0`
