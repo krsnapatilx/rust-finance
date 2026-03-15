@@ -2,10 +2,10 @@
 // Verifies HRT's discoveries surrounding huge pages, sequential/strided access
 // penalties, and lock-free SPSC ring buffers vs false sharing.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::cell::UnsafeCell;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::time::Duration;
+
 
 #[repr(C)]
 pub struct FalseSharingBad {
