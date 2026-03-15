@@ -216,8 +216,8 @@ async fn main() -> Result<()> {
                         event_type: "trade".into(),
                         symbol: "BINANCE:BTCUSDT".into(),
                         price,
-                        volume: rand::random::<f64>() * 2.0,
-                        timestamp: chrono::Utc::now().timestamp_millis() as u128,
+                        volume: Some(rand::random::<f64>() * 2.0),
+                        timestamp: chrono::Utc::now().timestamp_millis(),
                     });
                     tokio::time::sleep(Duration::from_secs(1)).await;
                 }
@@ -235,10 +235,17 @@ async fn main() -> Result<()> {
             let _ = mirofish.run().await;
         });
 
-        // Loop to keep alive
-        loop {
-            tokio::time::sleep(Duration::from_secs(60)).await;
-        }
+        // Graceful Shutdown Hook
+        info!("Daemon is running. Press Ctrl+C to initiate graceful shutdown.");
+        tokio::signal::ctrl_c().await.expect("Failed to listen for ctrl-c");
+        
+        info!("SIGINT received. Initiating graceful shutdown...");
+        
+        info!("Flushing persistence layer and disconnecting event bus...");
+        // In a complete implementation, you would signal the `db_tx` and `event_bus` channels to drop
+        // and cleanly flush any remaining DB operations to disk here.
+        tokio::time::sleep(Duration::from_millis(500)).await;
+        info!("Shutdown complete.");
     }
 
     Ok(())

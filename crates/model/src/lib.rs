@@ -15,7 +15,7 @@ impl InferenceEngine {
 
     pub fn load(&self) -> Result<()> {
         // Placeholder for loading ONNX model using `tract` or `ort`
-        // println!("Loading model from {}", self.model_path);
+        // tracing::info!("Loading model from {}", self.model_path);
         Ok(())
     }
 

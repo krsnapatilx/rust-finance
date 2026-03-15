@@ -1,0 +1,8 @@
+avoid-breaking-exported-api = false
+cognitive-complexity-threshold = 30
+too-many-arguments-threshold = 10
+type-complexity-threshold = 250
+enum-variant-name-threshold = 5
+
+# Allow standard doc omissions for internal project until phase 5
+allow-missing-docs = true

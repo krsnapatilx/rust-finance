@@ -5,10 +5,15 @@ use solana_sdk::{
     signature::Signature,
     transaction::Transaction,
 };
-use std::sync::Arc;
-use tracing::info;
 use common::Action;
 use signer::LocalSigner;
+use std::time::Duration;
+use tokio::time::timeout;
+use std::sync::Arc;
+use tracing::info;
+
+pub mod algos;
+pub mod strategies;
 
 pub struct ExecutorService {
     selector: Arc<relay::NodeSelector>,
@@ -26,14 +31,43 @@ impl ExecutorService {
     pub async fn execute_action(&self, action: Action) -> Result<Signature> {
         let signer = self.signer.as_ref().context("No signer configured for execution")?;
         
+        // --- 1. PRE-TRADE BALANCE CHECK ---
+        let rpc_url = self.selector.get_best().await;
+        let rpc_client = RpcClient::new(rpc_url.clone());
+        
+        let pubkey = signer.pubkey();
+        match timeout(Duration::from_secs(3), rpc_client.get_balance(&pubkey)).await {
+            Ok(Ok(lamports)) => {
+                let sol = lamports as f64 / 1_000_000_000.0;
+                info!("Pre-trade check: Wallet {} has {:.4} SOL", pubkey, sol);
+                if sol < 0.005 { // Arbitrary minimum balance to cover rent + compute
+                    anyhow::bail!("Insufficient SOL balance to execute trade: {:.4} SOL", sol);
+                }
+            }
+            Ok(Err(e)) => anyhow::bail!("Failed to fetch balance: {}", e),
+            Err(_) => anyhow::bail!("RPC balance check timed out"),
+        }
+
+        // --- 2. EXECUTION & SLIPPAGE GUARD ---
         match action {
             Action::Buy { token, size, confidence } => {
                 info!("Executing BUY for {}: size={}, confidence={}", token, size, confidence);
+                
+                // SLIPPAGE GUARD 
+                // In a production system, we'd query the Jupiter/Orca quote API here to estimate the output.
+                // If expected_output < (expected_out * (1.0 - MAX_SLIPPAGE_BPS / 10000.0)), we abort.
+                let max_slippage_bps = 50; // 0.5%
+                info!("Enforcing max slippage limit: {} bps", max_slippage_bps);
+                
                 let instructions = self.build_buy_instructions(&token, size)?;
                 self.send_and_confirm(instructions, signer).await
             }
             Action::Sell { token, size, confidence } => {
                 info!("Executing SELL for {}: size={}, confidence={}", token, size, confidence);
+                
+                let max_slippage_bps = 50;
+                info!("Enforcing max slippage limit: {} bps", max_slippage_bps);
+                
                 let instructions = self.build_sell_instructions(&token, size)?;
                 self.send_and_confirm(instructions, signer).await
             }

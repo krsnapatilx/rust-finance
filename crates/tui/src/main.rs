@@ -12,6 +12,9 @@ use ratatui::{
     widgets::{canvas::*, *},
     text::Line,
 };
+use tokio::net::TcpStream;
+use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::sync::mpsc;
 
 // Custom Colors matching the image
 const BG: Color = Color::Rgb(10, 12, 15);
@@ -28,6 +31,7 @@ const PURPLE: Color = Color::Rgb(167, 139, 250);
 struct App {
     quit: bool,
     chart_data: Vec<(f64, f64)>,
+    connection_status: String,
 }
 
 impl App {
@@ -42,6 +46,7 @@ impl App {
         Self {
             quit: false,
             chart_data,
+            connection_status: "Connecting...".to_string(),
         }
     }
 }
@@ -56,7 +61,43 @@ async fn main() -> anyhow::Result<()> {
 
     let mut app = App::new();
 
+    // Event Bus Connection Manager
+    let (tx, mut rx) = mpsc::channel::<String>(100);
+    
+    tokio::spawn(async move {
+        loop {
+            match TcpStream::connect("127.0.0.1:7001").await {
+                Ok(stream) => {
+                    let _ = tx.send("Connected to Daemon (127.0.0.1:7001)".to_string()).await;
+                    let mut reader = BufReader::new(stream);
+                    let mut line = String::new();
+                    
+                    loop {
+                        line.clear();
+                        match reader.read_line(&mut line).await {
+                            Ok(0) => break, // EOF
+                            Ok(_) => {
+                                // Real implementation would parse event and update App state
+                            }
+                            Err(_) => break, // Error
+                        }
+                    }
+                    let _ = tx.send("Daemon Disconnected. Reconnecting...".to_string()).await;
+                }
+                Err(_) => {
+                    let _ = tx.send("Connection Failed. Retrying...".to_string()).await;
+                }
+            }
+            tokio::time::sleep(Duration::from_secs(2)).await;
+        }
+    });
+
     loop {
+        // Non-blocking UI update from network thread
+        while let Ok(msg) = rx.try_recv() {
+            app.connection_status = msg;
+        }
+
         terminal.draw(|f| ui(f, &app))?;
 
         if crossterm::event::poll(Duration::from_millis(100))? {
@@ -87,7 +128,7 @@ fn ui(f: &mut Frame, app: &App) {
         ])
         .split(f.size());
 
-    draw_top_bar(f, main_layout[0]);
+    draw_top_bar(f, main_layout[0], app);
     draw_main_content(f, main_layout[1], app);
     draw_bottom_bar(f, main_layout[2]);
 }
@@ -102,7 +143,7 @@ fn block_with_title<'a>(title: &'a str) -> Block<'a> {
         .style(Style::default().bg(BG))
 }
 
-fn draw_top_bar(f: &mut Frame, area: Rect) {
+fn draw_top_bar(f: &mut Frame, area: Rect, app: &App) {
     let text = Line::from(vec![
         Span::styled(" 🟧 RUST TERMINAL   ", Style::default().fg(ORANGE).add_modifier(Modifier::BOLD)),
         Span::styled("NYSE ", Style::default().fg(GREEN)), Span::raw("●  "),
@@ -113,7 +154,7 @@ fn draw_top_bar(f: &mut Frame, area: Rect) {
         Span::styled("CRYPTO ", Style::default().fg(Color::Yellow)), Span::raw("●  "),
         Span::raw("                                        "),
         Span::styled("● ", Style::default().fg(Color::Cyan)),
-        Span::styled("Live: E2E: 1.8ms (FIX 4.4) | FIX 4.4 | 11 2:30 EST", Style::default().fg(TEXT_SECONDARY)),
+        Span::styled(format!(" Live: E2E: 1.8ms | Status: {} | 11 2:30 EST", app.connection_status), Style::default().fg(TEXT_SECONDARY)),
     ]);
     f.render_widget(Paragraph::new(text).style(Style::default().bg(BG)), area);
 }
