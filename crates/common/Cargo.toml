@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
+zeroize = { version = "1", features = ["zeroize_derive"] }
 serde_json = "1.0"
 anyhow = "1.0"
 thiserror = "1.0"

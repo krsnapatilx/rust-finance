@@ -32,6 +32,7 @@ mod event_handler;
 pub mod widgets;
 pub mod layout;
 pub mod state;
+pub mod setup;
 
 use app::App;
 use common::models::exchange::ExchangeStatus;
@@ -45,7 +46,23 @@ async fn main() -> anyhow::Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let mut app = App::new();
+    // Try loading existing .env
+    let _ = dotenvy::dotenv();
+
+    // Determine if setup is needed
+    let needs_setup = std::env::var("FINNHUB_API_KEY").is_err()
+        || std::env::var("ALPACA_API_KEY").is_err()
+        || std::env::var("ALPACA_SECRET_KEY").is_err();
+
+    let force_setup = std::env::args().any(|a| a == "--setup");
+
+    let initial_screen = if needs_setup || force_setup {
+        crate::app::AppScreen::Setup(crate::app::SetupState::new())
+    } else {
+        crate::app::AppScreen::Dashboard
+    };
+
+    let mut app = App::new(initial_screen);
 
     // Event Bus Connection Manager
     let (tx_status, mut rx_status) = mpsc::channel::<String>(100);
@@ -94,15 +111,50 @@ async fn main() -> anyhow::Result<()> {
             app.update_from_event(event);
         }
 
-        terminal.draw(|f| ui(f, &app))?;
+        terminal.draw(|f| {
+            match &app.screen {
+                crate::app::AppScreen::Setup(state) => crate::setup::render_setup(f, state),
+                crate::app::AppScreen::Dashboard => ui(f, &app),
+            }
+        })?;
 
         if crossterm::event::poll(Duration::from_millis(50))? {
             match event::read()? {
                 Event::Key(key) => {
-                    event_handler::handle_key(&mut app, key);
+                    match &mut app.screen {
+                        crate::app::AppScreen::Setup(state) => {
+                            match crate::setup::handle_setup_key(key, state) {
+                                crate::setup::SetupAction::Submit => {
+                                    let pairs: Vec<(&str, &str)> = state.fields.iter()
+                                        .map(|f| (f.name, f.value.as_str()))
+                                        .collect();
+
+                                    match common::env_writer::save_keys(&pairs) {
+                                        Ok(()) => {
+                                            use zeroize::Zeroize;
+                                            for field in &mut state.fields {
+                                                field.value.zeroize();
+                                            }
+                                            app.screen = crate::app::AppScreen::Dashboard;
+                                        }
+                                        Err(e) => {
+                                            state.error_msg = Some(format!("Failed to save .env: {}", e));
+                                        }
+                                    }
+                                }
+                                crate::setup::SetupAction::Quit => break,
+                                crate::setup::SetupAction::Continue => {}
+                            }
+                        }
+                        crate::app::AppScreen::Dashboard => {
+                            event_handler::handle_key(&mut app, key);
+                        }
+                    }
                 }
                 Event::Mouse(mouse_event) => {
-                    event_handler::handle_mouse(&mut app, mouse_event);
+                    if let crate::app::AppScreen::Dashboard = &app.screen {
+                        event_handler::handle_mouse(&mut app, mouse_event);
+                    }
                 }
                 _ => {}
             }

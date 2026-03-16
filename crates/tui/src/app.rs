@@ -50,9 +50,33 @@ pub enum AlertSeverity {
 
 use common::models::exchange::{ExchangeInfo, ExchangeStatus, ExchangeName};
 
+// ── App Screens ───────────────────────────────────────────────────────────────
+
+pub enum AppScreen {
+    Setup(SetupState),
+    Dashboard,
+}
+
+pub struct SetupState {
+    pub fields: Vec<KeyField>,
+    pub active_field: usize,
+    pub error_msg: Option<String>,
+    pub show_confirmation: bool,
+}
+
+pub struct KeyField {
+    pub name: &'static str,
+    pub label: &'static str,
+    pub value: String,
+    pub required: bool,
+    pub masked: bool,
+    pub hint: &'static str,
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────────
 
 pub struct App {
+    pub screen: AppScreen,
     pub should_quit: bool,
     pub connection_status: String,
     pub show_help: bool,
@@ -104,8 +128,9 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(initial_screen: AppScreen) -> Self {
         Self {
+            screen: initial_screen,
             should_quit: false,
             connection_status: "Connecting...".to_string(),
             show_help: false,
