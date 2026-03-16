@@ -117,7 +117,8 @@ The workspace is organized into discrete, highly decoupled crates:
 * **`ingestion`**: Connects to `Finnhub` and `Alpaca` WebSockets. Normalizes trade and quote data into a standard `MarketEvent` format and pumps it into the system at extremely low latency.
 * **`relay`**: Handles network routing and edge measurement. Specifically benchmarks multiple RPC nodes (Helius, Triton, QuickNode) and routes transactions through the lowest-latency path available.
 * **`event_bus`**: A custom-built, lightweight TCP broadcasting system that decouples producers and consumers. Allows the TUI and Web Dashboards to run in entirely separate processes from the Daemon.
-* **`persistence`**: Storage layer designed to record transactional records, system P&L tracking, and order history.
+* **`swarm_sim`**: A comprehensive multi-agent financial market swarm simulation engine. Integrates agent profiles (Retail, Hedge Fund, Market Maker, etc.) to model complex market behaviors, sentiment shocks, and price impacts concurrently using rayon.
+* **`persistence`**: Storage layer designed to record transactional records, system P&L tracking, order history, and large-scale action logs for swarm agents.
 * **`common`**: Shared models, structs, commands, and `BotEvent` enumerations used across all systems to guarantee strict typing on inter-process communications.
 
 ## Configuration
@@ -151,9 +152,14 @@ cargo run -p tui --release
 * **Quantitative Pricing Analytics (`pricing`):** Bloomberg-grade option pricing frameworks including **Black-Scholes-Merton**, **Hagan SABR Volatility**, **Heston Stochastic Vol**, and **Hull-White Trinomial** trees. 
 * **Fixed Income Modeling:** Implemented the exact BVAL 3-step algorithms and corporate WACC default computations native to institutional desks.
 * **Advanced Risk Engines (`risk`):** Automated VaR checks, dynamic Drawdown halts, and **GARCH(1,1) Volatility forecasting**.
+* **Financial Swarm Intelligence (`swarm_sim`):**
+    * Multi-threaded agent engine utilizing `rayon` to simulate thousands of distinct market participants concurrently.
+    * Real-time Agent Profiling representing Retail, Market Makers, Arbitrage bots, and Institutional Hedge Funds.
+    * Extensible **Market Scenario Engine** handling macro shocks like Fed rate hikes, flash crashes, or liquidity vacuums.
+    * Explainable **Interview Engine** providing deep introspection into specific algorithmic triggers and agent decisions.
 * **Dual AI Decision Engines (Anthropic Claude Opus 4.6 Powered):**
     * **Dexter Analyst AI:** Reads fundamental data and market news via **Opus 4.6**. Opus 4.6 outperforms GPT-5.2 by 144 Elo points on GDPval-AA evaluations (economically valuable finance constraints) making it the top financial analyst model globally.
-    * **MiroFish Swarm AI:** Simulates 5,000 algorithmic agent iterations and runs via Agent Teams.
+    * **MiroFish Swarm AI:** Simulates algorithmic agent iterations and runs via Agent Teams, feeding direct biases into the terminal models.
     * **Compaction API Integration:** Infinite deep context length allows the daemon to retain rolling multi-week token histories purely on server-side summarizations, reducing overhead significantly.
     * **NeurIPS 2025 Interval Regression:** Advanced multi-layer perceptron training natively on Bid/Ask spreads without lit prints.
 * **Terminal UI (TUI):** A professional-grade, multi-column dashboard rendered directly in your terminal using Ratatui. Features high-res Braille price charts, live options chains (`options_chain.rs`), and live portfolio P&L tracking.

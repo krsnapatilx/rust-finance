@@ -1,0 +1,23 @@
+[package]
+name = "swarm_sim"
+version = "0.1.0"
+edition = "2021"
+description = "Multi-agent financial market swarm simulation engine for RustForge"
+license = "MIT"
+
+[dependencies]
+tokio = { workspace = true, optional = false }
+rayon = "1.10"
+rand = { version = "0.8", features = ["small_rng"] }
+anyhow = "1.0"
+rand_distr = "0.4"
+serde = { workspace = true, optional = false }
+serde_json = { workspace = true, optional = false }
+tracing = { workspace = true, optional = false }
+chrono = { workspace = true, optional = false }
+statrs = "0.16"
+
+[dev-dependencies]
+tokio-test = "0.4"
+approx = "0.5"
+criterion = { version = "0.5", features = ["html_reports"] }

@@ -62,3 +62,9 @@ Classical ML target-mapping breaks down when lit prints are sparse (like in corp
 - `If Prediction < Bid`: `Loss = (Bid - Prediction)²`
 - `If Prediction > Ask`: `Loss = (Prediction - Ask)²`
 - `Else (Inside Spread)`: `Loss = 0`
+
+### 5. Swarm Intelligence Engine (`swarm_sim`)
+Inspired by complex sociological models, the terminal natively integrates a highly parallelized (via `rayon`) multi-agent simulator running inside its own isolated `tokio` context.
+- **Microstructure Emulation**: Models the behavioral differences and latency constraints between Retail, Hedge Funds, Arbitrage, and Market Maker subsets.
+- **Synthetic Scenarios**: Can inject extreme scenarios (Flash Crashes, Oil Supply Shocks, Interest Rate Hikes) to model exactly how a given market structure might collapse or absorb the liquidity vacuum.
+- **Explainable Analytics**: Features an `InterviewEngine` which can cross-examine simulation agents mid-flight, converting arbitrary float weights back into categorical natural language reasoning.
