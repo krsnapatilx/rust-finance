@@ -30,6 +30,8 @@ const PURPLE: Color = Color::Rgb(167, 139, 250);
 mod app;
 mod event_handler;
 pub mod widgets;
+pub mod layout;
+pub mod state;
 
 use app::App;
 use common::models::exchange::ExchangeStatus;

@@ -5,3 +5,4 @@ pub mod client;
 pub mod signal;
 pub mod compaction;
 pub mod mirofish;
+pub mod dexter;

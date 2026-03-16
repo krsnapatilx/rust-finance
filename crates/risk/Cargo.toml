@@ -10,3 +10,6 @@ serde_json = "1.0"
 anyhow = "1.0"
 tracing = "0.1"
 tokio = { version = "1", features = ["sync", "time"] }
+execution = { version = "0.1.0", path = "../execution" }
+ai = { version = "0.1.0", path = "../ai" }
+swarm_sim = { version = "0.1.0", path = "../swarm_sim" }

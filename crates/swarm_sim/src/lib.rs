@@ -16,6 +16,7 @@ pub mod signal;
 pub mod interview;
 pub mod persistence;
 pub mod config;
+pub mod digital_twin;
 
 pub use agent::{Agent, AgentId, TraderType, AgentState};
 pub use engine::{SwarmEngine, SwarmStep};

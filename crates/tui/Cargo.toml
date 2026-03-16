@@ -12,3 +12,6 @@ common = { path = "../common" }
 crossbeam-channel = "0.5"
 serde_json = "1.0"
 tokio-retry = "0.3.0"
+ai = { version = "0.1.0", path = "../ai" }
+swarm_sim = { version = "0.1.0", path = "../swarm_sim" }
+chrono.workspace = true

@@ -21,6 +21,7 @@ pub mod reconnect;
 pub mod shutdown;
 pub mod strategy_registry;
 pub mod telemetry;
+pub mod hybrid_pipeline;
 
 #[tokio::main]
 async fn main() -> Result<()> {

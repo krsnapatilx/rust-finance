@@ -8,14 +8,14 @@ common = { path = "../common" }
 ingestion = { path = "../ingestion" }
 parser = { path = "../parser" }
 strategy = { path = "../strategy" }
-risk = { path = "../risk" }
+risk = { version = "0.1.0", path = "../risk" }
 executor = { path = "../executor" }
 feature = { path = "../feature" }
 signer = { path = "../signer" }
 event_bus = { path = "../event_bus" }
 relay = { path = "../relay" }
 persistence = { path = "../persistence" }
-ai = { path = "../ai" }
+ai = { version = "0.1.0", path = "../ai" }
 oms = { path = "../oms" }
 metrics_lib = { path = "../metrics", package = "metrics_lib" }
 chrono = "0.4"
@@ -47,3 +47,6 @@ futures = "0.3"
 # cli
 anyhow = "1.0"
 clap = { version = "4.4", features = ["derive", "env"] }
+knowledge_graph = { version = "0.1.0", path = "../knowledge_graph" }
+swarm_sim = { version = "0.1.0", path = "../swarm_sim" }
+execution = { version = "0.1.0", path = "../execution" }
